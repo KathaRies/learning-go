@@ -8,10 +8,18 @@ import (
 	"testing"
 )
 
-func TestByteCount(t *testing.T) {
-	filePath := "./test.txt"
+var filePath = "./test.txt"
 
-	dat, _ := os.ReadFile(filePath)
+func getContent(t *testing.T) []byte {
+	dat, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Error(err)
+	}
+	return dat
+}
+
+func TestByteCount(t *testing.T) {
+	dat := getContent(t)
 	res := countBytes(dat)
 
 	if res != 342190 {
@@ -19,10 +27,35 @@ func TestByteCount(t *testing.T) {
 	}
 }
 
-func TestMainFunc(t *testing.T) {
-	file := "./test.txt"
+func TestLineCount(t *testing.T) {
+	dat := getContent(t)
+	res := countLines(dat)
 
-	os.Args = append(os.Args, file)
+	if res != 7145 {
+		t.Errorf("Expected 7145  but got %v", res)
+	}
+}
+
+func TestWordCount(t *testing.T) {
+	dat := getContent(t)
+	res := countWords(dat)
+
+	if res != 58164 {
+		t.Errorf("Expected 58164 but got %v", res)
+	}
+}
+
+func TestCharCount(t *testing.T) {
+	dat := getContent(t)
+	res := countChars(dat)
+
+	if res != 327898 {
+		t.Errorf("Expected 327898 but got %v", res)
+	}
+}
+
+func TestMainFunc(t *testing.T) {
+	os.Args = append(os.Args, filePath)
 
 	var buf bytes.Buffer
 	log.SetOutput(&buf)
@@ -33,8 +66,8 @@ func TestMainFunc(t *testing.T) {
 	main()
 
 	// Test file path argument
-	expected, err := regexp.Match(`.`+file+`.`, buf.Bytes())
+	expected, err := regexp.Match(`.`+filePath+`.`, buf.Bytes())
 	if !expected || err != nil {
-		t.Fatalf("Argument not read correctly, %v instead of %v", &buf, file)
+		t.Fatalf("Argument not read correctly, %v instead of %v", &buf, filePath)
 	}
 }
